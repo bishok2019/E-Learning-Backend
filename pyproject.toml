@@ -19,6 +19,7 @@ dependencies = [
     "python-decouple>=3.8",
     "rest-framework-simplejwt>=0.0.2",
     "ruff>=0.14.14",
+    "uvicorn>=0.40.0",
 ]
 
 
