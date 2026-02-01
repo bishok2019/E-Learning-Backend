@@ -1,6 +1,7 @@
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 
+from .models import UserTypeEnum
 from .utils import (
     HttpBasedPermissionActionMaps,
 )
@@ -17,6 +18,23 @@ class CustomIsAuthenticatedPermission(IsAuthenticated):
             return False
         return True
 
+class IsStudent(IsAuthenticated):
+    def has_permission(self, request, view):
+        return request.user.user_type == UserTypeEnum.STUDENT
+
+
+class IsInstructor(IsAuthenticated):
+    def has_permission(self, request, view):
+        return request.user.user_type == UserTypeEnum.INSTRUCTOR
+
+class IsInstructorOwner(IsAuthenticated):
+    def has_object_permission(self, request, view, obj):
+        return obj.instructor == request.user
+
+
+class IsLessonInstructorOwner(IsAuthenticated):
+    def has_object_permission(self, request, view, obj):
+        return obj.course.instructor == request.user
 
 class CustomAuthenticationPermission(IsAuthenticated):
     """

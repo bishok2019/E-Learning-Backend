@@ -1,0 +1,64 @@
+from rest_framework import generics
+from ..models import Lesson
+from ..serializers import (
+    LessonListSerializer,
+    LessonCreateSerializer,
+    LessonUpdateSerializer,
+    LessonDetailSerializer,
+)
+from apps.authentication.custom_perms import IsInstructor, IsLessonInstructorOwner
+from base.views.generic_views import (
+    CustomGenericCreateView,
+    CustomGenericListView,
+    CustomGenericRetrieveView,
+    CustomGenericUpdateView,
+)
+from rest_framework.permissions import IsAuthenticated
+
+class LessonListView(CustomGenericListView):
+    """
+    List all lessons for a course.
+    """
+    serializer_class = LessonListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        course_id = self.kwargs.get("course_id")
+        return Lesson.objects.filter(course_id=course_id).order_by("order")
+
+
+class LessonCreateView(CustomGenericCreateView):
+    """
+    Create a new lesson (Instructors only).
+    """
+    serializer_class = LessonCreateSerializer
+    permission_classes = [IsInstructor]
+
+
+class LessonRetrieveView(CustomGenericRetrieveView):
+    """
+    Retrieve lesson details.
+    """
+    serializer_class = LessonDetailSerializer
+    queryset = Lesson.objects.all()
+
+
+class LessonUpdateView(CustomGenericUpdateView):
+    """
+    Update a lesson (Instructor owner only).
+    """
+    serializer_class = LessonUpdateSerializer
+    permission_classes = [IsInstructor, IsLessonInstructorOwner]
+
+    def get_queryset(self):
+        return Lesson.objects.filter(course__instructor=self.request.user)
+
+
+class LessonDeleteView(generics.DestroyAPIView):
+    """
+    Delete a lesson (Instructor owner only).
+    """
+    permission_classes = [ IsInstructor, IsLessonInstructorOwner]
+
+    def get_queryset(self):
+        return Lesson.objects.filter(course__instructor=self.request.user)

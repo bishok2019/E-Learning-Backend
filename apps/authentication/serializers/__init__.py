@@ -17,7 +17,7 @@ from .users import (
     CustomUserUpdateSerializer,
     UserListSerializer,
 )
-
+from .signup import CustomUserSignUpSerializer
 __all__ = [
     "LoginSerializer",
     "LogoutSerializer",
@@ -34,4 +34,5 @@ __all__ = [
     "RolesListSerializerDropdown",
     "RolesRetrieveSerializer",
     "RolesUpdateSerializer",
+    "CustomUserSignUpSerializer",
 ]

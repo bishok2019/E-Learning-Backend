@@ -111,7 +111,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, AbstractBaseModel):
             "refresh": str(refresh),
             "access": str(refresh.access_token),
             # "username": self.username,
-            "email": self.email,
+            "email_address": self.email_address,
             "full_name": self.full_name,
             "is_superuser": self.is_superuser,
             "id": self.id,

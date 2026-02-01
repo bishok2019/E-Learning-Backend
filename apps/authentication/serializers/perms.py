@@ -28,14 +28,6 @@ class PermissionCategorySerializer(BaseModelSerializer):
         exclude = ExcludeFields.exclude
 
 
-class RolesSerializer(BaseModelSerializer):
-    permissions = PermissionSerializer(many=True)
-
-    class Meta:
-        model = Roles
-        exclude = ExcludeFields.exclude
-
-
 class RolesListSerializer(BaseModelSerializer):
     permissions = PermissionSerializer(many=True)
 

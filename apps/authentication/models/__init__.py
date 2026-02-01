@@ -1,4 +1,4 @@
-from .custom_users import CustomUser
+from .custom_users import CustomUser, UserTypeEnum
 from .perms import CustomPermission, PermissionCategory, Roles
 
 # from .user_profile import UserProfile
@@ -9,5 +9,6 @@ __all__ = [
     "CustomPermission",
     "PermissionCategory",
     "Roles",
+    "UserTypeEnum",
     # "UserProfile",
 ]

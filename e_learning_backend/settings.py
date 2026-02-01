@@ -44,6 +44,7 @@ THIRD_PARTY_APPS = [
 ]
 LOCAL_APPS = [
     "apps.authentication",
+    "apps.course",
 ]
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -97,7 +98,7 @@ WSGI_APPLICATION = "e_learning_backend.wsgi.application"
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-DATABASE = {
+DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": config("DB_NAME"),
@@ -107,6 +108,7 @@ DATABASE = {
         "PORT": config("DB_PORT"),
     },
 }
+
 
 
 # Password validation

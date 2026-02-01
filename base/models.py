@@ -134,6 +134,10 @@ class AbstractBaseModel(
     AbstractSoftDelete,
     DeviceApp,
 ):
+    def _validate_data(self):
+        """Override this method in child classes to add custom validation."""
+        pass
+
     @transaction.atomic
     def save(self, *args, **kwargs):
         """

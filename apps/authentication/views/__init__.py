@@ -18,7 +18,7 @@ from .perms import (
     RolesRetrieveView,
     RolesUpdateView,
 )
-
+from .signup import CustomUserSignUpAPIView
 __all__ = [
     "LoginView",
     "LogoutView",
@@ -36,4 +36,5 @@ __all__ = [
     "RolesListView",
     "RolesRetrieveView",
     "RolesUpdateView",
+    "CustomUserSignUpAPIView",
 ]

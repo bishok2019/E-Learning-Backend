@@ -6,38 +6,36 @@ User = get_user_model()
 
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField(required=False)
+    email_address = serializers.CharField(required=False)
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
         request = self.context.get("request")
-        username = attrs.get("username", "").lower()
+        email = attrs.get("email_address", "").lower()
         password = attrs.get("password")
 
-        if not username:
+        if not email:
             raise serializers.ValidationError(
                 {
-                    "username": "Email or Username is required.",
+                    "email_address": "Email is required.",
                 }
             )
 
         user = User.objects.filter(
-            Q(email__iexact=username) | Q(username__iexact=username)
-        ).first()
+            Q(email_address__iexact=email)).first()
 
         if not user:
-            raise serializers.ValidationError({"username": "User not found."})
-
-        user = authenticate(request=request, username=user.username, password=password)
+            raise serializers.ValidationError({"email_address": "User not found."})
+        user = authenticate(request=request, email_address=user.email_address, password=password)
 
         if not user:
             raise serializers.ValidationError({"password": "Invalid credentials."})
 
         if not user.is_active:
-            raise serializers.ValidationError({"username": "User is not active."})
+            raise serializers.ValidationError({"email_address": "User is not active."})
 
         if user.is_blocked:
-            raise serializers.ValidationError({"username": "Account is blocked."})
+            raise serializers.ValidationError({"email_address": "Account is blocked."})
 
         data = user.tokens(request)
         return data
