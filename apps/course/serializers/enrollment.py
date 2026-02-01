@@ -1,8 +1,9 @@
-from rest_framework import serializers
 from django.utils import timezone
+from rest_framework import serializers
 
 from base.serializers import BaseModelSerializer
-from ..models import Enrollment, CourseStatusEnum
+
+from ..models import CourseStatusEnum, Enrollment
 
 
 class EnrollmentListSerializer(BaseModelSerializer):
@@ -33,8 +34,10 @@ class EnrollmentCreateSerializer(BaseModelSerializer):
     class Meta:
         model = Enrollment
         fields = [
+            "id",
             "course",
         ]
+        read_only_fields = ["id"]
 
     def validate(self, data):
         request = self.context.get("request")

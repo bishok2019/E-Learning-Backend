@@ -1,10 +1,15 @@
 from rest_framework import serializers
-from ..models import Course, CourseStatusEnum
+
 from base.serializers import BaseModelSerializer, ExcludeFields
+
+from ..models import Course, CourseStatusEnum
 from .lesson import LessonListSerializer
 
+
 class CourseListSerializer(BaseModelSerializer):
-    instructor_name = serializers.CharField(source="instructor.full_name", read_only=True)
+    instructor_name = serializers.CharField(
+        source="instructor.full_name", read_only=True
+    )
     total_lessons = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -27,9 +32,11 @@ class CourseCreateSerializer(BaseModelSerializer):
     class Meta:
         model = Course
         fields = [
+            "id",
             "title",
             "description",
         ]
+        read_only_fields = ["id"]
 
     def create(self, validated_data):
         request = self.context.get("request")
@@ -49,7 +56,9 @@ class CourseUpdateSerializer(BaseModelSerializer):
 
 
 class CourseDetailSerializer(BaseModelSerializer):
-    instructor_name = serializers.CharField(source="instructor.full_name", read_only=True)
+    instructor_name = serializers.CharField(
+        source="instructor.full_name", read_only=True
+    )
     total_lessons = serializers.IntegerField(read_only=True)
     lessons = serializers.SerializerMethodField()
 
