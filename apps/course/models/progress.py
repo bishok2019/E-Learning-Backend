@@ -1,4 +1,5 @@
 from django.db import models
+
 from base.models import AbstractBaseModel
 
 
@@ -7,13 +8,13 @@ class Progress(AbstractBaseModel):
         "course.Enrollment",
         on_delete=models.CASCADE,
         related_name="completed_lessons",
-        help_text="Enrollment this progress belongs to."
+        help_text="Enrollment this progress belongs to.",
     )
     lesson = models.ForeignKey(
         "course.Lesson",
         on_delete=models.CASCADE,
         related_name="completions",
-        help_text="Lesson that was completed."
+        help_text="Lesson that was completed.",
     )
 
     class Meta:

@@ -1,23 +1,22 @@
-from django.urls import path, include
+from django.urls import include, path
 
 from .views import (
-    CourseListView,
     CourseCreateView,
+    CourseListView,
     CourseRetrieveView,
     CourseUpdateView,
+    EnrollmentCreateView,
+    EnrollmentListView,
+    EnrollmentRetrieveView,
+    LessonCreateView,
+    LessonDeleteView,
     # CourseDeleteView,
     LessonListView,
-    LessonCreateView,
-    LessonRetrieveView,
-    LessonUpdateView,
-    LessonDeleteView,
-    EnrollmentListView,
-    EnrollmentCreateView,
-    EnrollmentRetrieveView,
     LessonProgressCreateView,
     LessonProgressListView,
+    LessonRetrieveView,
+    LessonUpdateView,
 )
-
 
 course_patterns = [
     path("list", CourseListView.as_view(), name="course-list"),
@@ -25,7 +24,7 @@ course_patterns = [
     path("retrieve/<int:pk>", CourseRetrieveView.as_view(), name="course-retrieve"),
     path("update/<int:pk>", CourseUpdateView.as_view(), name="course-update"),
     # path("delete/<int:pk>", CourseDeleteView.as_view(), name="course-delete"),
-    ]
+]
 
 lesson_patterns = [
     path("list", LessonListView.as_view(), name="lesson-list"),
@@ -38,12 +37,24 @@ lesson_patterns = [
 enrollment_patterns = [
     path("list", EnrollmentListView.as_view(), name="enrollment-list"),
     path("create", EnrollmentCreateView.as_view(), name="enrollment-create"),
-    path("retrieve/<int:pk>", EnrollmentRetrieveView.as_view(), name="enrollment-retrieve"),
+    path(
+        "retrieve/<int:pk>",
+        EnrollmentRetrieveView.as_view(),
+        name="enrollment-retrieve",
+    ),
 ]
 
 progress_patterns = [
-    path("<int:enrollment_id>/completions/create", LessonProgressCreateView.as_view(), name="lesson-progress-create"),
-    path("<int:enrollment_id>/completions/list", LessonProgressListView.as_view(), name="lesson-progress-list"),
+    path(
+        "<int:enrollment_id>/completions/create",
+        LessonProgressCreateView.as_view(),
+        name="lesson-progress-create",
+    ),
+    path(
+        "<int:enrollment_id>/completions/list",
+        LessonProgressListView.as_view(),
+        name="lesson-progress-list",
+    ),
 ]
 
 urlpatterns = [

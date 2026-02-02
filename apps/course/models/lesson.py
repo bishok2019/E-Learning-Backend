@@ -1,4 +1,5 @@
 from django.db import models
+
 from base.models import AbstractBaseModel
 
 
@@ -7,19 +8,14 @@ class Lesson(AbstractBaseModel):
         "course.Course",
         on_delete=models.CASCADE,
         related_name="lessons",
-        help_text="Course this lesson belongs to."
+        help_text="Course this lesson belongs to.",
     )
-    title = models.CharField(
-        max_length=255,
-        help_text="Title of the lesson."
-    )
+    title = models.CharField(max_length=255, help_text="Title of the lesson.")
     content = models.TextField(
-        blank=True,
-        help_text="Content of the lesson (plain text)."
+        blank=True, help_text="Content of the lesson (plain text)."
     )
     order = models.PositiveIntegerField(
-        default=0,
-        help_text="Order index of the lesson within the course."
+        default=0, help_text="Order index of the lesson within the course."
     )
 
     class Meta:

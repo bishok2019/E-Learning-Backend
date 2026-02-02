@@ -22,7 +22,6 @@ class LessonCompletionCreateSerializer(serializers.ModelSerializer):
             )
 
         lesson = data.get("lesson")
-        request = self.context.get("request")
 
         # Check if the lesson belongs to the enrolled course
         if lesson.course != enrollment.course:

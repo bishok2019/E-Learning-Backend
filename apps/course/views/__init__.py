@@ -1,21 +1,21 @@
 from .course import (
-    CourseListView,
     CourseCreateView,
+    CourseListView,
     CourseRetrieveView,
     CourseUpdateView,
     # CourseDeleteView,
 )
+from .enrollment import (
+    EnrollmentCreateView,
+    EnrollmentListView,
+    EnrollmentRetrieveView,
+)
 from .lesson import (
-    LessonListView,
     LessonCreateView,
+    LessonDeleteView,
+    LessonListView,
     LessonRetrieveView,
     LessonUpdateView,
-    LessonDeleteView,
-)
-from .enrollment import (
-    EnrollmentListView,
-    EnrollmentCreateView,
-    EnrollmentRetrieveView,
 )
 from .progress import (
     LessonProgressCreateView,

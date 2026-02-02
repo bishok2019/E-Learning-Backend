@@ -1,12 +1,7 @@
-
 from django.db.models import Q
-from ..models import Course, CourseStatusEnum
-from ..serializers import (
-    CourseListSerializer,
-    CourseCreateSerializer,
-    CourseUpdateSerializer,
-    CourseDetailSerializer,
-)
+from rest_framework.permissions import IsAuthenticated
+
+from apps.authentication.custom_perms import IsInstructor, IsInstructorOwner
 from apps.authentication.models import UserTypeEnum
 from base.views.generic_views import (
     CustomGenericCreateView,
@@ -14,14 +9,22 @@ from base.views.generic_views import (
     CustomGenericRetrieveView,
     CustomGenericUpdateView,
 )
-from apps.authentication.custom_perms import IsInstructor, IsInstructorOwner
-from rest_framework.permissions import IsAuthenticated
+
+from ..models import Course, CourseStatusEnum
+from ..serializers import (
+    CourseCreateSerializer,
+    CourseDetailSerializer,
+    CourseListSerializer,
+    CourseUpdateSerializer,
+)
+
 
 class CourseListView(CustomGenericListView):
     """
     List all published courses for students.
     Instructors see all their own courses.
     """
+
     serializer_class = CourseListSerializer
     permission_classes = [IsAuthenticated]
 
@@ -39,6 +42,7 @@ class CourseCreateView(CustomGenericCreateView):
     """
     Create a new course (Instructors only).
     """
+
     serializer_class = CourseCreateSerializer
     permission_classes = [IsAuthenticated, IsInstructor]
 
@@ -47,6 +51,7 @@ class CourseRetrieveView(CustomGenericRetrieveView):
     """
     Retrieve course details.
     """
+
     serializer_class = CourseDetailSerializer
     permission_classes = [IsAuthenticated]
 
@@ -62,6 +67,7 @@ class CourseUpdateView(CustomGenericUpdateView):
     """
     Update a course (Instructor owner only).
     """
+
     serializer_class = CourseUpdateSerializer
     permission_classes = [IsAuthenticated, IsInstructor, IsInstructorOwner]
 

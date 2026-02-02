@@ -1,4 +1,5 @@
 from django.db import models
+
 from base.models import AbstractBaseModel
 
 
@@ -7,22 +8,19 @@ class Enrollment(AbstractBaseModel):
         "authentication.CustomUser",
         on_delete=models.CASCADE,
         related_name="enrollments",
-        help_text="Student enrolled in the course."
+        help_text="Student enrolled in the course.",
     )
     course = models.ForeignKey(
         "course.Course",
         on_delete=models.CASCADE,
         related_name="enrollments",
-        help_text="Course the student is enrolled in."
+        help_text="Course the student is enrolled in.",
     )
     is_completed = models.BooleanField(
-        default=False,
-        help_text="Whether the student has completed the course."
+        default=False, help_text="Whether the student has completed the course."
     )
     completed_at = models.DateTimeField(
-        null=True,
-        blank=True,
-        help_text="Timestamp when the course was completed."
+        null=True, blank=True, help_text="Timestamp when the course was completed."
     )
 
     class Meta:
