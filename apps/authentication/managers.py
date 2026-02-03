@@ -11,7 +11,7 @@ class CustomUserManager(BaseUserManager):
         #     raise ValueError("You must provide an email address")
 
         email = self.normalize_email(email_address)
-        user = self.model(email_address=email,  **extra_fields)
+        user = self.model(email_address=email, **extra_fields)
         user.set_password(password)
         user.save()
         return user
@@ -21,11 +21,12 @@ class CustomUserManager(BaseUserManager):
         Creating SuperUser after the user creation.
         """
         user = self.create_user(
-            email_address=email_address,  password=password, **extra_fields
+            email_address=email_address, password=password, **extra_fields
         )
         user.is_active = True
         user.is_admin = True
         user.is_staff = True
+        user.user_type = "ADMIN"
         user.is_superuser = True
         user.save(using=self._db)
         return user
