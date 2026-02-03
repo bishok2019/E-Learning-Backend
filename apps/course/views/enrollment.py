@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions
 
-from apps.authentication.custom_perms import IsStudent
 from apps.authentication.models import UserTypeEnum
+from apps.authentication.perms.custom_perms import IsStudent
 
 from ..models import Enrollment
 from ..serializers import (

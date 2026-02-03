@@ -1,5 +1,3 @@
-from decouple import config
-
 SPECTACULAR_SETTINGS_ = {
     "TITLE": "E-Learning Backend API",
     "DESCRIPTION": "Talent Star Backend API Documentation",

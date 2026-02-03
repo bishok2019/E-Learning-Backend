@@ -10,6 +10,7 @@ from .perms import (
     RolesRetrieveSerializer,
     RolesUpdateSerializer,
 )
+from .signup import CustomUserSignUpSerializer
 from .users import (
     ChangePasswordSerializer,
     CustomUserCreateSerializer,
@@ -17,7 +18,7 @@ from .users import (
     CustomUserUpdateSerializer,
     UserListSerializer,
 )
-from .signup import CustomUserSignUpSerializer
+
 __all__ = [
     "LoginSerializer",
     "LogoutSerializer",

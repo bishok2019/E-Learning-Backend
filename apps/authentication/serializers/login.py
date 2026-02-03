@@ -21,12 +21,13 @@ class LoginSerializer(serializers.Serializer):
                 }
             )
 
-        user = User.objects.filter(
-            Q(email_address__iexact=email)).first()
+        user = User.objects.filter(Q(email_address__iexact=email)).first()
 
         if not user:
             raise serializers.ValidationError({"email_address": "User not found."})
-        user = authenticate(request=request, email_address=user.email_address, password=password)
+        user = authenticate(
+            request=request, email_address=user.email_address, password=password
+        )
 
         if not user:
             raise serializers.ValidationError({"password": "Invalid credentials."})

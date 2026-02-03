@@ -1,19 +1,19 @@
 from .course import (
-    CourseListSerializer,
     CourseCreateSerializer,
-    CourseUpdateSerializer,
     CourseDetailSerializer,
-)
-from .lesson import (
-    LessonListSerializer,
-    LessonCreateSerializer,
-    LessonUpdateSerializer,
-    LessonDetailSerializer,
+    CourseListSerializer,
+    CourseUpdateSerializer,
 )
 from .enrollment import (
-    EnrollmentListSerializer,
     EnrollmentCreateSerializer,
     EnrollmentDetailSerializer,
+    EnrollmentListSerializer,
+)
+from .lesson import (
+    LessonCreateSerializer,
+    LessonDetailSerializer,
+    LessonListSerializer,
+    LessonUpdateSerializer,
 )
 from .progress import (
     LessonCompletionCreateSerializer,

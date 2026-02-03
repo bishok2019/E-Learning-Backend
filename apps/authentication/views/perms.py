@@ -7,11 +7,11 @@ from base.views.generic_views import (
     CustomGenericUpdateView,
 )
 
-from ..custom_perms import (
+from ..filters.roles import RolesFilter
+from ..perms.custom_perms import (
     CustomAuthenticationPermission,
     CustomIsAuthenticatedPermission,
 )
-from ..filters.roles import RolesFilter
 from ..serializers import (
     PermissionCategorySerializer,
     PermissionDropdownSerializer,

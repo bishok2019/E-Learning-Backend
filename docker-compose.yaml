@@ -6,6 +6,7 @@ services:
       sh -c "
       until pg_isready -h db -p 5432; do sleep 1; done &&
       uv run python manage.py migrate &&
+      uv run python manage.py create_perms &&
       uv run python manage.py shell -c \"from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(email_address='admin@example.com').exists() or User.objects.create_superuser('admin@example.com', 'admin')\" &&
       uv run uvicorn e_learning_backend.asgi:application --host 0.0.0.0 --port 8000
       "

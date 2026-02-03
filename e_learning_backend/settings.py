@@ -15,7 +15,10 @@ from pathlib import Path
 
 from decouple import config
 
+from .db import _DATABASES
 from .rest import REST_FRAMEWORK_CONFIGS
+from .settings_config import *  # noqa: F403
+from .simple_jwt import _SIMPLE_JWT
 from .spectacular import SPECTACULAR_SETTINGS_
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -26,12 +29,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-t$%%lm96==8p*zz-5gxf2_wllg5-!8&_&4f0brb$7(8i%g14dh"
+SECRET_KEY = config("_SECRET_KEY", cast=str)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SERVER_ENV = config("SERVER_ENV", cast=bool, default=True)
 
-ALLOWED_HOSTS = []
+DEBUG = config("_DEBUG", cast=bool, default=True)
+if DEBUG and not SERVER_ENV:
+    import socket
+
+    hostname_ = socket.gethostname()
+    ip_address = socket.gethostbyname(hostname_)
+    INTERNAL_IPS = [
+        "127.0.0.1",
+        "localhost",
+        ip_address,
+    ]
+
+    DEBUG_TOOLBAR_CONFIG = {
+        "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+    }
+# ALLOWED_HOSTS = [] already defined in settings_config.py
 
 
 # Application definition
@@ -98,17 +116,7 @@ WSGI_APPLICATION = "e_learning_backend.wsgi.application"
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
-        "HOST": config("DB_HOST", default="localhost"),
-        "PORT": config("DB_PORT"),
-    },
-}
-
+DATABASES = _DATABASES
 
 
 # Password validation
@@ -155,3 +163,4 @@ MEDIA_URL = "/media/"
 AUTH_USER_MODEL = "authentication.CustomUser"
 SPECTACULAR_SETTINGS = SPECTACULAR_SETTINGS_
 REST_FRAMEWORK = REST_FRAMEWORK_CONFIGS
+SIMPLE_JWT = _SIMPLE_JWT

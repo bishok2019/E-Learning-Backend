@@ -59,6 +59,7 @@ class UserListSerializer(BaseModelSerializer):
             "last_name",
             "is_active",
             "created_at",
+            "user_type",
         ]
 
 

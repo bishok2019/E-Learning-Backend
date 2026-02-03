@@ -1,7 +1,7 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from apps.authentication.custom_perms import IsInstructor, IsLessonInstructorOwner
+from apps.authentication.perms.custom_perms import IsInstructor, IsLessonInstructorOwner
 from base.views.generic_views import (
     CustomGenericCreateView,
     CustomGenericListView,

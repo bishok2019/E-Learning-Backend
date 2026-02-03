@@ -1,4 +1,4 @@
-from apps.authentication.custom_perms import IsStudent
+from apps.authentication.perms.custom_perms import IsStudent
 from base.views.generic_views import (
     CustomGenericCreateView,
     CustomGenericListView,

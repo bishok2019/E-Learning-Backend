@@ -1,8 +1,8 @@
 from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated
 
-from apps.authentication.custom_perms import IsInstructor, IsInstructorOwner
 from apps.authentication.models import UserTypeEnum
+from apps.authentication.perms.custom_perms import IsInstructor, IsInstructorOwner
 from base.views.generic_views import (
     CustomGenericCreateView,
     CustomGenericListView,

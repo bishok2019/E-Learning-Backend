@@ -1,8 +1,8 @@
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 
-from .models import UserTypeEnum
-from .utils import (
+from ..models import UserTypeEnum
+from ..utils import (
     HttpBasedPermissionActionMaps,
 )
 
@@ -10,31 +10,48 @@ from .utils import (
 class CustomIsAuthenticatedPermission(IsAuthenticated):
     """
     A simple permission mixin that ensures the user is authenticated.
-    used mostly in DropDown APIS
+    Child classes should override `check_permission()` instead of `has_permission()`.
     """
 
     def has_permission(self, request, view):
+        # Always check authentication first
         if not super().has_permission(request, view):
             return False
+        # Then check custom permission logic
+        return self.check_permission(request, view)
+
+    def check_permission(self, request, view):
+        """Override this in child classes for custom permission logic."""
         return True
 
-class IsStudent(IsAuthenticated):
-    def has_permission(self, request, view):
+
+class IsStudent(CustomIsAuthenticatedPermission):
+    message = "Only students can perform this action."
+
+    def check_permission(self, request, view):
         return request.user.user_type == UserTypeEnum.STUDENT
 
 
-class IsInstructor(IsAuthenticated):
-    def has_permission(self, request, view):
+class IsInstructor(CustomIsAuthenticatedPermission):
+    message = "Only instructors can perform this action. Please ensure your account has instructor privileges."
+
+    def check_permission(self, request, view):
         return request.user.user_type == UserTypeEnum.INSTRUCTOR
 
-class IsInstructorOwner(IsAuthenticated):
+
+class IsInstructorOwner(CustomIsAuthenticatedPermission):
+    message = "You must be the owner of this course to perform this action."
+
     def has_object_permission(self, request, view, obj):
         return obj.instructor == request.user
 
 
-class IsLessonInstructorOwner(IsAuthenticated):
+class IsLessonInstructorOwner(CustomIsAuthenticatedPermission):
+    message = "Only the course instructor can perform this action."
+
     def has_object_permission(self, request, view, obj):
         return obj.course.instructor == request.user
+
 
 class CustomAuthenticationPermission(IsAuthenticated):
     """
