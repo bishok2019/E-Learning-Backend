@@ -20,6 +20,32 @@ class CustomUserCreateSerializer(BaseModelSerializer):
     class Meta:
         model = CustomUser
         fields = "__all__"
+        extra_kwargs = {
+            "password": {"write_only": True, "required": True},
+            "username": {"required": False},
+        }
+
+    def validate_email_address(self, value):
+        if CustomUser.objects.filter(email_address=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return value
+
+    def create(self, validated_data):
+        m2m_fields = {
+            "roles": validated_data.pop("roles", []),
+            "permissions": validated_data.pop("permissions", []),
+        }
+
+        user = CustomUser.objects.create_user(**validated_data)
+
+        for field, values in m2m_fields.items():
+            getattr(user, field).set(values)
+
+        return user
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        return data
 
 
 class CustomUserUpdateSerializer(BaseModelSerializer):
