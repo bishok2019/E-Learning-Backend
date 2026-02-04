@@ -188,7 +188,7 @@ class Command(BaseCommand):
             self.create_support_role()
             self.assign_superuser_permissions()
             self.stdout.write(
-                self.style.SUCCESS("\n Successfullt created permission and category.")
+                self.style.SUCCESS("\n Successfully created permission and category.")
             )
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"Error during execution:{str(e)}"))
