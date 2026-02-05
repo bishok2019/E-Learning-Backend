@@ -1,7 +1,9 @@
 services:
   web:
+    container_name: e_learning_web
     build: .
     working_dir: /app
+    restart: unless-stopped
     command: >
       sh -c "
       until pg_isready -h db -p 5432; do sleep 1; done &&
@@ -26,7 +28,9 @@ services:
         condition: service_healthy
 
   db:
+    container_name: e_learning_db
     image: postgres:15
+    restart: unless-stopped
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
