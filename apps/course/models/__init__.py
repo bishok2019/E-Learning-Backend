@@ -1,6 +1,6 @@
 from .course import Course, CourseStatusEnum
-from .lesson import Lesson
 from .enrollment import Enrollment
+from .lesson import Lesson
 from .progress import Progress
 
 __all__ = [

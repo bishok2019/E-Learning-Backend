@@ -21,24 +21,28 @@ from .views import (
 course_patterns = [
     path("list", CourseListView.as_view(), name="course-list"),
     path("create", CourseCreateView.as_view(), name="course-create"),
-    path("retrieve/<int:pk>", CourseRetrieveView.as_view(), name="course-retrieve"),
-    path("update/<int:pk>", CourseUpdateView.as_view(), name="course-update"),
-    # path("delete/<int:pk>", CourseDeleteView.as_view(), name="course-delete"),
+    path(
+        "retrieve/<int:course_id>", CourseRetrieveView.as_view(), name="course-retrieve"
+    ),
+    path("update/<int:course_id>", CourseUpdateView.as_view(), name="course-update"),
+    # path("delete/<int:course_id>", CourseDeleteView.as_view(), name="course-delete"),
 ]
 
 lesson_patterns = [
-    path("list", LessonListView.as_view(), name="lesson-list"),
+    path("list/<int:course_id>", LessonListView.as_view(), name="lesson-list"),
     path("create", LessonCreateView.as_view(), name="lesson-create"),
-    path("retrieve/<int:pk>", LessonRetrieveView.as_view(), name="lesson-retrieve"),
-    path("update/<int:pk>", LessonUpdateView.as_view(), name="lesson-update"),
-    path("delete/<int:pk>", LessonDeleteView.as_view(), name="lesson-delete"),
+    path(
+        "retrieve/<int:lesson_id>", LessonRetrieveView.as_view(), name="lesson-retrieve"
+    ),
+    path("update/<int:lesson_id>", LessonUpdateView.as_view(), name="lesson-update"),
+    path("delete/<int:lesson_id>", LessonDeleteView.as_view(), name="lesson-delete"),
 ]
 
 enrollment_patterns = [
     path("list", EnrollmentListView.as_view(), name="enrollment-list"),
     path("create", EnrollmentCreateView.as_view(), name="enrollment-create"),
     path(
-        "retrieve/<int:pk>",
+        "retrieve/<int:enrollment_id>",
         EnrollmentRetrieveView.as_view(),
         name="enrollment-retrieve",
     ),

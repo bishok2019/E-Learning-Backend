@@ -39,6 +39,27 @@ class IsInstructor(CustomIsAuthenticatedPermission):
         return request.user.user_type == UserTypeEnum.INSTRUCTOR
 
 
+class IsCourseOwner(CustomIsAuthenticatedPermission):
+    message = "You must be the owner of this course to perform this action."
+
+    # def has_object_permission(self, request, view, obj):
+    #     return obj.lessons.instructor == request.user
+    def check_permission(self, request, view):
+        # logger.info(
+        #     f"Checking course ownership for user: {request.user} and course: {obj}"
+        # )
+        course_id = view.kwargs.get("course_id")
+        if not course_id:
+            return False
+        from apps.course.models.course import Course
+
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return False
+        return course.instructor == request.user
+
+
 class IsInstructorOwner(CustomIsAuthenticatedPermission):
     message = "You must be the owner of this course to perform this action."
 

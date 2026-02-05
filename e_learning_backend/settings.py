@@ -16,6 +16,7 @@ from pathlib import Path
 from decouple import config
 
 from .db import _DATABASES
+from .logging import _LOGGING
 from .rest import REST_FRAMEWORK_CONFIGS
 from .settings_config import *  # noqa: F403
 from .simple_jwt import _SIMPLE_JWT
@@ -164,3 +165,4 @@ AUTH_USER_MODEL = "authentication.CustomUser"
 SPECTACULAR_SETTINGS = SPECTACULAR_SETTINGS_
 REST_FRAMEWORK = REST_FRAMEWORK_CONFIGS
 SIMPLE_JWT = _SIMPLE_JWT
+LOGGING = _LOGGING

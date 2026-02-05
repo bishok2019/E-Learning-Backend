@@ -1,3 +1,12 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Course, Enrollment, Lesson, Progress
+
+admin.site.register(
+    [
+        Course,
+        Enrollment,
+        Lesson,
+        Progress,
+    ]
+)

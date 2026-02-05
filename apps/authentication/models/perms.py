@@ -18,6 +18,9 @@ class Roles(AbstractBaseModel):
         verbose_name = "Role"
         verbose_name_plural = "Roles"
 
+    def __str__(self):
+        return self.name
+
 
 class PermissionCategory(AbstractBaseModel):
     name = models.CharField(
@@ -51,3 +54,6 @@ class CustomPermission(AbstractBaseModel):
     def save(self, *args, **kwargs):
         self.code_name = str(self.code_name).lower()
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.code_name

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from base.serializers import BaseModelSerializer
+from base.serializers import BaseModelSerializer, ExcludeFields
 
 from ..models import CustomPermission, CustomUser, Roles
 
@@ -19,7 +19,13 @@ class CustomUserCreateSerializer(BaseModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = "__all__"
+        # fields = "__all__"
+        exclude = ExcludeFields.exclude + [
+            "groups",
+            "user_permissions",
+            "last_login",
+            "full_name",
+        ]
         extra_kwargs = {
             "password": {"write_only": True, "required": True},
             "username": {"required": False},

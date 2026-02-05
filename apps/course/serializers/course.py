@@ -31,12 +31,7 @@ class CourseListSerializer(BaseModelSerializer):
 class CourseCreateSerializer(BaseModelSerializer):
     class Meta:
         model = Course
-        fields = [
-            "id",
-            "title",
-            "description",
-        ]
-        read_only_fields = ["id"]
+        exclude = ExcludeFields.exclude + ["instructor"]
 
     def create(self, validated_data):
         request = self.context.get("request")
@@ -48,11 +43,7 @@ class CourseCreateSerializer(BaseModelSerializer):
 class CourseUpdateSerializer(BaseModelSerializer):
     class Meta:
         model = Course
-        fields = [
-            "title",
-            "description",
-            "status",
-        ]
+        exclude = ExcludeFields.exclude
 
 
 class CourseDetailSerializer(BaseModelSerializer):

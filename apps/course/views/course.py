@@ -2,7 +2,7 @@ from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated
 
 from apps.authentication.models import UserTypeEnum
-from apps.authentication.perms.custom_perms import IsInstructor, IsInstructorOwner
+from apps.authentication.perms.custom_perms import IsCourseOwner, IsInstructor
 from base.views.generic_views import (
     CustomGenericCreateView,
     CustomGenericListView,
@@ -33,9 +33,12 @@ class CourseListView(CustomGenericListView):
         if user.user_type == UserTypeEnum.INSTRUCTOR:
             # Instructors see their own courses
             return Course.objects.filter(instructor=user)
-        else:
+
+        elif user.user_type == UserTypeEnum.STUDENT:
             # Students see only published courses
             return Course.objects.filter(status=CourseStatusEnum.PUBLISHED)
+        else:
+            return Course.objects.all()  # Admins see all courses
 
 
 class CourseCreateView(CustomGenericCreateView):
@@ -69,7 +72,7 @@ class CourseUpdateView(CustomGenericUpdateView):
     """
 
     serializer_class = CourseUpdateSerializer
-    permission_classes = [IsAuthenticated, IsInstructor, IsInstructorOwner]
+    permission_classes = [IsAuthenticated, IsInstructor, IsCourseOwner]
 
     def get_queryset(self):
         return Course.objects.filter(instructor=self.request.user)

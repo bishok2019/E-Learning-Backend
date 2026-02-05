@@ -1,7 +1,12 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from apps.authentication.perms.custom_perms import IsInstructor, IsLessonInstructorOwner
+from apps.authentication.perms.custom_perms import (
+    IsCourseOwner,
+    IsInstructor,
+    IsLessonInstructorOwner,
+    IsStudent,
+)
 from base.views.generic_views import (
     CustomGenericCreateView,
     CustomGenericListView,
@@ -24,7 +29,7 @@ class LessonListView(CustomGenericListView):
     """
 
     serializer_class = LessonListSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsLessonInstructorOwner]
 
     def get_queryset(self):
         course_id = self.kwargs.get("course_id")
@@ -38,6 +43,7 @@ class LessonCreateView(CustomGenericCreateView):
 
     serializer_class = LessonCreateSerializer
     permission_classes = [IsInstructor]
+    success_response_message = "Lesson created successfully."
 
 
 class LessonRetrieveView(CustomGenericRetrieveView):

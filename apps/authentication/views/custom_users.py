@@ -86,6 +86,7 @@ class RefreshTokenView(TokenRefreshView):
 class UserCreateView(CustomGenericCreateView):
     serializer_class = CustomUserCreateSerializer
     queryset = User.objects.all()
+    permission_classes = []
 
 
 class UserUpdateView(CustomGenericUpdateView):
