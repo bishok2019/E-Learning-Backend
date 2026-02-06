@@ -2,9 +2,9 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
 from apps.authentication.perms.custom_perms import (
-    IsCourseOwner,
+    IsEnrolled,
     IsInstructor,
-    IsLessonInstructorOwner,
+    IsInstructorCreator,
     IsStudent,
 )
 from base.views.generic_views import (
@@ -29,7 +29,7 @@ class LessonListView(CustomGenericListView):
     """
 
     serializer_class = LessonListSerializer
-    permission_classes = [IsLessonInstructorOwner]
+    permission_classes = []
 
     def get_queryset(self):
         course_id = self.kwargs.get("course_id")
@@ -53,6 +53,7 @@ class LessonRetrieveView(CustomGenericRetrieveView):
 
     serializer_class = LessonDetailSerializer
     queryset = Lesson.objects.all()
+    permission_classes = [IsEnrolled | IsInstructor]
 
 
 class LessonUpdateView(CustomGenericUpdateView):
@@ -61,7 +62,7 @@ class LessonUpdateView(CustomGenericUpdateView):
     """
 
     serializer_class = LessonUpdateSerializer
-    permission_classes = [IsInstructor, IsLessonInstructorOwner]
+    permission_classes = [IsInstructorCreator]
 
     def get_queryset(self):
         return Lesson.objects.filter(course__instructor=self.request.user)
@@ -72,7 +73,7 @@ class LessonDeleteView(generics.DestroyAPIView):
     Delete a lesson (Instructor owner only).
     """
 
-    permission_classes = [IsInstructor, IsLessonInstructorOwner]
+    permission_classes = []
 
     def get_queryset(self):
         return Lesson.objects.filter(course__instructor=self.request.user)

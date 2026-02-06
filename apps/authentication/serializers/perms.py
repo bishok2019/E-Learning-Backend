@@ -6,10 +6,15 @@ from base.serializers import BaseModelSerializer, ExcludeFields, serializers
 class PermissionSerializer(BaseModelSerializer):
     class Meta:
         model = CustomPermission
-        fields = [
-            "id",
+        # fields = [
+        #     "id",
+        #     "name",
+        #     "code_name",
+        # ]
+        exclude = ExcludeFields.exclude + [
             "name",
-            "code_name",
+            "id",
+            "category",
         ]
 
 

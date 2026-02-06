@@ -55,7 +55,7 @@ user_patterns = [
 authentication_patterns = [
     path("login", LoginView.as_view(), name="login"),
     path("logout", LogoutView.as_view(), name="logout"),
-    path("token/refresh", RefreshTokenView.as_view(), name="token-refresh"),
+    path("refresh-token", RefreshTokenView.as_view(), name="token-refresh"),
     path("signup", CustomUserSignUpAPIView.as_view(), name="user-signup"),
     path("users/", include(user_patterns)),
     path("permissions/", include(permissions_patterns)),

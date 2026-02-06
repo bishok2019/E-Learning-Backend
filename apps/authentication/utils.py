@@ -27,6 +27,7 @@ class PermissionLists:
     ROLES = "roles"
     ROLE_NAME = "SUPPORT"
     USER_PERMISSION_CACHE_KEY = "user_permissions_cache"
+    COURSE = "course"
 
     # --------------------------------------------------------API LOGS--------------------------
     # API_LOGS = "api_logs"
@@ -38,6 +39,7 @@ class PermissionLists:
         "CUSTOM_PERMISSION": CUSTOM_PERMISSION,
         "PERMISSION_CATEGORY": PERMISSION_CATEGORY,
         "ROLES": ROLES,
+        "COURSE": COURSE,
         # "API_LOGS": API_LOGS,
     }
 

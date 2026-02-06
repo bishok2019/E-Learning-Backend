@@ -1,3 +1,5 @@
+import logging
+
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 
@@ -5,6 +7,8 @@ from ..models import UserTypeEnum
 from ..utils import (
     HttpBasedPermissionActionMaps,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class CustomIsAuthenticatedPermission(IsAuthenticated):
@@ -25,6 +29,7 @@ class CustomIsAuthenticatedPermission(IsAuthenticated):
         return True
 
 
+# To access courses to retrieve or list view for any student
 class IsStudent(CustomIsAuthenticatedPermission):
     message = "Only students can perform this action."
 
@@ -32,22 +37,42 @@ class IsStudent(CustomIsAuthenticatedPermission):
         return request.user.user_type == UserTypeEnum.STUDENT
 
 
+# For Access view to instructor  for retrieve view
 class IsInstructor(CustomIsAuthenticatedPermission):
     message = "Only instructors can perform this action. Please ensure your account has instructor privileges."
 
     def check_permission(self, request, view):
+        logger.info(f"Checking if user {request.user} is an instructor.")
+        print(f"Checking if user {request.user} is an instructor.")
         return request.user.user_type == UserTypeEnum.INSTRUCTOR
 
 
-class IsCourseOwner(CustomIsAuthenticatedPermission):
-    message = "You must be the owner of this course to perform this action."
+# Access View to Enrolled Student for retrieve view
+class IsEnrolled(CustomIsAuthenticatedPermission):
+    message = "You must be enrolled in this course to perform this action."
+
+    def check_permission(self, request, view):
+        enrollment_id = view.kwargs.get("enrollment_id")
+        if not enrollment_id:
+            return False
+        from apps.course.models import Enrollment
+
+        try:
+            enrollment = Enrollment.objects.get(id=enrollment_id)
+        except Enrollment.DoesNotExist:
+            return False
+        return enrollment.student == request.user
+
+
+class IsCourseCreator(CustomIsAuthenticatedPermission):
+    message = "You must be the creator of this course to perform this action."
 
     # def has_object_permission(self, request, view, obj):
     #     return obj.lessons.instructor == request.user
     def check_permission(self, request, view):
-        # logger.info(
-        #     f"Checking course ownership for user: {request.user} and course: {obj}"
-        # )
+        logger.info(
+            f"Checking course ownership for user: {request.user} and course: {view.kwargs.get('course_id')}."
+        )
         course_id = view.kwargs.get("course_id")
         if not course_id:
             return False
@@ -60,18 +85,23 @@ class IsCourseOwner(CustomIsAuthenticatedPermission):
         return course.instructor == request.user
 
 
-class IsInstructorOwner(CustomIsAuthenticatedPermission):
-    message = "You must be the owner of this course to perform this action."
+class IsInstructorCreator(CustomIsAuthenticatedPermission):
+    message = (
+        "You must be the instructor or creator of this course to perform this action."
+    )
 
     def has_object_permission(self, request, view, obj):
-        return obj.instructor == request.user
+        return obj.instructor == request.user or IsCourseCreator().check_permission(
+            request, view
+        )
+        # return obj.instructor or obj.course.created_by == request.user
 
 
-class IsLessonInstructorOwner(CustomIsAuthenticatedPermission):
-    message = "Only the course instructor can perform this action."
+# class IsLessonInstructorOwner(CustomIsAuthenticatedPermission):
+#     message = "Only the course instructor can perform this action."
 
-    def has_object_permission(self, request, view, obj):
-        return obj.course.instructor == request.user
+#     def has_object_permission(self, request, view, obj):
+#         return obj.course.instructor == request.user
 
 
 class CustomAuthenticationPermission(IsAuthenticated):

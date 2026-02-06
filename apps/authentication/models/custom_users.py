@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.authentication.managers import CustomUserManager
+from apps.authentication.models.perms import CustomPermission
 from base.models import AbstractBaseModel, models
 
 
@@ -91,19 +92,39 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, AbstractBaseModel):
     USERNAME_FIELD = "email_address"
 
     @property
-    def get_permissions(self):
-        return [_.code_name for _ in self.permissions.all()]
+    def permission_from_roles(self):
+        permissions = set()
+        for role in self.roles.all():
+            permissions.update(perm.code_name for perm in role.permissions.all())
+        return permissions
 
     @property
-    def get_roles(self):
-        return [_.name for _ in self.roles.all()]
+    def direct_permissions(self):
+        user_perms = set(perm.code_name for perm in self.permissions.all())
+
+        return list(user_perms - self.permission_from_roles)
 
     @property
     def get_all_permissions(self):
-        return {
-            "permissions": self.get_permissions,
-            "roles": self.get_roles,
-        }
+        return [perm.code_name for perm in self.permissions.all()] not in (
+            self.permission_from_roles
+        )
+
+    # @property
+    # def get_role_permissions(self):
+    #     permissions = set()
+    #     for role in self.roles.all():
+    #         permissions.update([perm.code_name for perm in role.permissions.all()])
+    #     return list(permissions)
+
+    @property
+    def get_roles_and_permission(self):
+        roles_permissions = {}
+        for role in self.roles.all():
+            roles_permissions[role.name] = [
+                perm.code_name for perm in role.permissions.all()
+            ]
+        return roles_permissions
 
     def tokens(self, request):
         refresh = RefreshToken.for_user(self)
@@ -116,7 +137,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, AbstractBaseModel):
             "is_superuser": self.is_superuser,
             "id": self.id,
             "user_type": self.user_type,
-            **self.get_all_permissions,
+            "direct_permissions": self.direct_permissions,
+            "roles_and_permissions": self.get_roles_and_permission,
         }
 
     def save(self, *args, **kwargs):

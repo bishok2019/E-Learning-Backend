@@ -3,6 +3,7 @@ from rest_framework import serializers
 from base.serializers import BaseModelSerializer, ExcludeFields
 
 from ..models import CustomPermission, CustomUser, Roles
+from ..serializers import RolesRetrieveSerializer
 
 
 class CustomUserCreateSerializer(BaseModelSerializer):
@@ -68,16 +69,25 @@ class CustomUserUpdateSerializer(BaseModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = "__all__"
+        # fields = "__all__"
+        exclude = ExcludeFields.exclude + [
+            "groups",
+            "user_permissions",
+            "password",
+        ]
 
 
 class CustomUserRetrieveSerializer(BaseModelSerializer):
-    roles = serializers.StringRelatedField(many=True)
+    roles = RolesRetrieveSerializer(many=True)
     permissions = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = CustomUser
-        fields = "__all__"
+        exclude = ExcludeFields.exclude + [
+            # "groups",
+            "user_permissions",
+            "password",
+        ]
 
 
 class UserListSerializer(BaseModelSerializer):
