@@ -17,12 +17,14 @@ services:
       - static_files:/app/staticfiles
     ports:
       - "8000:8000"
-    environment:
-      DB_NAME: e_learning_db
-      DB_USER: admin
-      DB_PASSWORD: admin123
-      DB_HOST: db
-      DB_PORT: 5432
+    env_file:
+      - .env
+    # environment: # since we are using env_file, this block is commented out
+    #   DB_NAME: e_learning_db
+    #   DB_USER: admin
+    #   DB_PASSWORD: admin123
+    #   DB_HOST: db
+    #   DB_PORT: 5432
     depends_on:
       db:
         condition: service_healthy
