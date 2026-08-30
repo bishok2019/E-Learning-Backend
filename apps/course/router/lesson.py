@@ -1,8 +1,6 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from apps.authentication.models import CustomUser
-from apps.authentication.utils import hash_password
 from apps.database import get_db
 from base.pagination import get_pagination_params
 from base.route import StandardResponse
@@ -15,22 +13,16 @@ router = APIRouter()
 
 
 @router.get("/list", response_model=StandardResponse)
-def get_Lessons(
-    search: str = "",
-    instructor_id: int = None,
-    status: str = None,
+def get_lessons(
     db: Session = Depends(get_db),
     pagination=Depends(get_pagination_params),
 ):
     """Get all Lessons with pagination"""
     result = generic_list_handler(
         search_fields=["title"],
-        filter_fields=["instructor_id", "status"],
         model=Lesson,
         schema=schemas.LessonListSchema,
         pagination=pagination,
-        status=status,
-        instructor_id=instructor_id,
         db=db,
     )
     return StandardResponse.success_response(
@@ -96,10 +88,10 @@ def retrieve_Lesson(
 ):
     lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
     if not lesson:
-        StandardResponse.error_response(
+        return StandardResponse.error_response(
             message="Lesson not Found.", status_code=status.HTTP_404_NOT_FOUND
         )
     return StandardResponse.success_response(
-        data=schemas.LessonRetrieveSchema.model_validate(Lesson),
+        data=schemas.LessonRetrieveSchema.model_validate(lesson),
         message="Lesson retrieved successfully.",
     )

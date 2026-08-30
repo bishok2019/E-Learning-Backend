@@ -58,6 +58,10 @@ upgrade:
 
 # ── Docker ────────────────────────────────────────────────────────────────────
 
+.PHONY: ps
+ps:
+	$(DC) ps 
+	
 .PHONY: logs
 logs:
 	$(DC) logs -f

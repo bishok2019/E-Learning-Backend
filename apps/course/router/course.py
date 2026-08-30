@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from apps.authentication.models import CustomUser
-from apps.authentication.utils import hash_password
 from apps.database import get_db
 from base.pagination import get_pagination_params
 from base.route import StandardResponse
@@ -126,7 +125,7 @@ def retrieve_course(
 ):
     course = db.query(Course).filter(Course.id == course_id).first()
     if not course:
-        StandardResponse.error_response(
+        return StandardResponse.error_response(
             message="Course not Found.", status_code=status.HTTP_404_NOT_FOUND
         )
     return StandardResponse.success_response(
@@ -142,17 +141,21 @@ def update_course(
     db: Session = Depends(get_db),
 ):
     """Update a specific user by ID"""
-    existing_course = (
-        db.query(Course).filter((Course.title == course_update.title)).first()
-    )
+    existing_course = None
+    if course_update.title is not None:
+        existing_course = (
+            db.query(Course)
+            .filter(Course.title == course_update.title, Course.id != course_id)
+            .first()
+        )
     if existing_course:
-        StandardResponse.error_response(
+        return StandardResponse.error_response(
             message="Course with this title already existed.",
             status_code=status.HTTP_400_BAD_REQUEST,
         )
     course = db.query(Course).filter(Course.id == course_id).first()
     if not course:
-        StandardResponse.error_response(
+        return StandardResponse.error_response(
             message="Course not found.",
             error="Course not found.",
             status_code=status.HTTP_404_NOT_FOUND,

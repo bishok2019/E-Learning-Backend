@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from apps import model_registry
+
+# from apps.api_logs.route import router as api_logs_router
 from apps.authentication.router import (
     auth_router,
     permission_router,
@@ -49,6 +51,8 @@ v1_router.include_router(user_router, prefix="/users", tags=["Users"])
 v1_router.include_router(course_router, prefix="/courses", tags=["Courses"])
 v1_router.include_router(lesson_router, prefix="/lesson", tags=["Lesson"])
 v1_router.include_router(enrollment_router, prefix="/enrollment", tags=["Enrollment"])
+# v1_router.include_router(api_logs_router, prefix="/api-logs", tags=["API Logs"])
 
 
 app.include_router(v1_router)
+app.mount("/", StaticFiles(directory="dist", html=True), name="frontend")
