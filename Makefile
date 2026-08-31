@@ -39,22 +39,11 @@ help:
 # ── apps ───────────────────────────────────────────────────────────────
 .PHONY: app
 app:
-	@if [ -z "$(word 2,$(MAKECMDGOALS))" ]; then \
-		echo "Usage: make app <app_name>"; \
-		exit 1; \
-	fi
-	@mkdir -p apps/$(word 2,$(MAKECMDGOALS))
-	@touch apps/$(word 2,$(MAKECMDGOALS))/__init__.py
-	@touch apps/$(word 2,$(MAKECMDGOALS))/models.py
-	@touch apps/$(word 2,$(MAKECMDGOALS))/schemas.py
-	@touch apps/$(word 2,$(MAKECMDGOALS))/route.py
-	@touch apps/$(word 2,$(MAKECMDGOALS))/utils.py
-	@echo "Created FastAPI app: apps/$(word 2,$(MAKECMDGOALS))"
-
+	@bash create_app.sh $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 
 # ── Alembic ───────────────────────────────────────────────────────────────────
 
-.PHONY: revision
+.PHONY: revision upgrade downgrade current history
 revision:
 	@if [ -z "$(word 2,$(MAKECMDGOALS))" ]; then \
 		echo 'Usage: make revision "your message"'; \
@@ -65,10 +54,17 @@ revision:
 upgrade:
 	$(DC) exec web alembic upgrade head
 
+downgrade:
+	$(DC) exec web alembic downgrade -1
 
+current:
+	$(DC) exec web alembic current
+
+history:
+	$(DC) exec web alembic history
 # ── Docker Container Command ────────────────────────────────────────────────────────────────────
 
-.PHONY: container command
+.PHONY: ps logs build up down remove restart
 ps:
 	$(DC) ps
 
@@ -92,7 +88,7 @@ restart:
 
 # ----------------------------Web Command-------------------
 
-.PHONY: web-command
+.PHONY: web-shell web-logs web-restart
 web-shell:
 	$(DC) exec -it web bash
 
@@ -104,7 +100,7 @@ web-restart:
 
 
 # ----------------------------DB Command-------------------
-.PHONY: db-command
+.PHONY: db-shell db-psql db-logs
 db-shell:
 	$(DC) exec -it db bash
 
@@ -115,8 +111,22 @@ db-psql:
 db-logs:
 	$(DC) logs -f db
 
+# ----------------------------NginX Command-----------------
+.PHONY: nginx-logs nginx-shell nginx-test nginx-reload
+
+nginx-logs:
+	$(DC) logs -f nginx
+
+nginx-shell:
+	$(DC) exec -it nginx sh
+
+nginx-test:
+	$(DC) exec nginx nginx -t
+
+nginx-reload:
+	$(DC) exec nginx nginx -s reload
 # ───────────────── Management command-------------------------
-.PHONY: permission
+.PHONY: permission flush
 permission:
 	$(DC) exec web python manage.py seed_permissions
 
