@@ -15,10 +15,21 @@ help:
 	@echo ""
 	@echo "Docker:"
 	@echo "  make build                           Build Docker images"
-	@echo "  make up                              Start containers"
-	@echo "  make down                            Stop containers"
-	@echo "  make restart                         Restart containers"
-	@echo "  make logs                            Follow container logs"
+	@echo "  make up                              Start all containers"
+	@echo "  make down                            Stop all containers"
+	@echo "  make restart                         Restart all containers"
+	@echo "  make logs                            Follow all container logs"
+	@echo ""
+	@echo "Web Command:"
+	@echo "make web-logs						  Follow web logs"
+	@echo "make web-shell						  Enter web shell"
+	@echo "make web-restart						  Restart Web Container"
+	@echo ""
+	@echo "DB Command:"
+	@echo "make db-logs						   	  Follow db logs"
+	@echo "make db-psql						      Enter psql shell"
+	@echo "make db-shell						  Enter db shell"
+	@echo ""
 	@echo "Management Command:"
 	@echo "  make permission                      Create permissions and category"
 	@echo "  make flush                           Flush all data"
@@ -51,52 +62,64 @@ revision:
 	fi
 	$(DC) exec web alembic revision --autogenerate -m "$(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))"
 
-.PHONY: upgrade
 upgrade:
 	$(DC) exec web alembic upgrade head
 
 
-# ── Docker ────────────────────────────────────────────────────────────────────
+# ── Docker Container Command ────────────────────────────────────────────────────────────────────
 
-.PHONY: ps
+.PHONY: container command
 ps:
-	$(DC) ps 
-	
-.PHONY: logs
+	$(DC) ps
+
 logs:
 	$(DC) logs -f
 
-
-.PHONY: build
 build:
 	$(DC) build
 
-
-.PHONY: up
 up:
 	$(DC) up -d
 
-
-.PHONY: down
 down:
 	$(DC) down
 
-.PHONY: remove
 remove:
 	$(DC) down -v
 
-
-.PHONY: restart
 restart:
 	$(DC) restart
+
+# ----------------------------Web Command-------------------
+
+.PHONY: web-command
+web-shell:
+	$(DC) exec -it web bash
+
+web-logs:
+	$(DC) logs -f web
+
+web-restart:
+	$(DC) restart web
+
+
+# ----------------------------DB Command-------------------
+.PHONY: db-command
+db-shell:
+	$(DC) exec -it db bash
+
+db-psql:
+
+	$(DC) exec -it db psql -U admin e_learning_db
+
+db-logs:
+	$(DC) logs -f db
 
 # ───────────────── Management command-------------------------
 .PHONY: permission
 permission:
 	$(DC) exec web python manage.py seed_permissions
 
-
-.PHONY: flush
 flush:
 	$(DC) exec web python manage.py flush_data
 
