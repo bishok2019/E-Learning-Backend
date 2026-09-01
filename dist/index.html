@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-Learning Admin Dashboard</title>
+    <meta name="description"
+        content="Professional e-learning dashboard for managing courses, lessons, enrollments, and user authentication." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <div class="page-shell">
+        <header class="topbar">
+            <div class="brand-wrap">
+                <div class="brand-mark">E</div>
+                <div>
+                    <p class="eyebrow">Learning platform</p>
+                    <h1>E-Learning</h1>
+                </div>
+            </div>
+
+            <nav class="main-nav" aria-label="Main navigation">
+                <button class="nav-tab active" data-view="overview">Overview</button>
+                <button class="nav-tab" data-view="courses">Courses</button>
+                <button class="nav-tab" data-view="enrollments">Enrollments</button>
+                <button class="nav-tab" data-view="account">Account</button>
+            </nav>
+
+            <div class="user-actions">
+                <button id="loginTriggerBtn" class="ghost-button">Sign in</button>
+                <button id="logoutBtn" class="ghost-button hidden">Logout</button>
+            </div>
+        </header>
+
+        <main class="content dashboard-shell">
+            <div id="authLockedState" class="auth-locked-state hidden">
+                <div class="locked-card">
+                    <p class="eyebrow">Secure access</p>
+                    <h2>Admin workspace is locked</h2>
+                    <p>Please sign in to access the dashboard and manage courses.</p>
+                    <button class="primary-button" id="unlockLoginBtn">Open login</button>
+                </div>
+            </div>
+
+            <div id="adminWorkspace" class="workspace-grid">
+                <section class="view-panel overview-panel active" data-view-panel="overview">
+                    <div class="panel-header split-header">
+                        <div>
+                            <p class="eyebrow">Performance</p>
+                            <h3>Overview</h3>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <article class="summary-card blue">
+                            <span>Active courses</span>
+                            <strong id="activeCoursesCount">0</strong>
+                        </article>
+                        <article class="summary-card green">
+                            <span>Enrollments</span>
+                            <strong id="enrollmentCount">0</strong>
+                        </article>
+                        <article class="summary-card purple">
+                            <span>Users</span>
+                            <strong id="userCount">0</strong>
+                        </article>
+                    </div>
+
+                    <div class="mini-grid">
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div>
+                                    <p class="eyebrow">Quick actions</p>
+                                    <h4>Course builder</h4>
+                                </div>
+                            </div>
+                            <form id="createCourseForm" class="stacked-form">
+                                <label>
+                                    Course title
+                                    <input type="text" name="title" placeholder="e.g. Advanced Python" required />
+                                </label>
+                                <label>
+                                    Instructor ID
+                                    <input type="number" name="instructor_id" placeholder="1" required />
+                                </label>
+                                <label>
+                                    Description
+                                    <textarea name="description" rows="3"
+                                        placeholder="Describe the learning outcome"></textarea>
+                                </label>
+                                <div class="inline-fields">
+                                    <label>
+                                        Status
+                                        <select name="status">
+                                            <option value="DRAFT">DRAFT</option>
+                                            <option value="PUBLISHED">PUBLISHED</option>
+                                            <option value="UNDER_REVIEW">UNDER_REVIEW</option>
+                                            <option value="ARCHIVED">ARCHIVED</option>
+                                        </select>
+                                    </label>
+                                    <label class="checkbox-field">
+                                        <input type="checkbox" name="is_active" checked />
+                                        Active
+                                    </label>
+                                </div>
+
+                                <div class="form-divider">
+                                    <span>Lessons</span>
+                                    <button type="button" id="addLessonBtn" class="ghost-button small-button">Add
+                                        lesson</button>
+                                </div>
+                                <div id="lessonFieldsContainer" class="lesson-fields-stack" data-count="1"></div>
+
+                                <button type="submit" class="primary-button full-width">Publish course</button>
+                            </form>
+                        </div>
+
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div>
+                                    <p class="eyebrow">Account</p>
+                                    <h4>Profile</h4>
+                                </div>
+                            </div>
+                            <div id="userProfile" class="profile-card">
+                                <div class="profile-avatar" id="userInitials">JD</div>
+                                <div>
+                                    <h4 id="profileName">Guest User</h4>
+                                    <p id="profileEmail">guest@example.com</p>
+                                </div>
+                            </div>
+                            <div id="authStateBadge" class="state-pill">Guest</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="view-panel" data-view-panel="courses">
+                    <div class="panel-header split-header">
+                        <div>
+                            <p class="eyebrow">Catalog</p>
+                            <h3>Courses</h3>
+                        </div>
+                        <button id="refreshCoursesBtn" class="ghost-button">Refresh</button>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>Instructor</th>
+                                    <th>Lessons</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coursesTableBody">
+                                <tr>
+                                    <td colspan="6" class="empty-state">Loading courses...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="view-panel" data-view-panel="enrollments">
+                    <div class="panel-header split-header">
+                        <div>
+                            <p class="eyebrow">Records</p>
+                            <h3>Enrollments</h3>
+                        </div>
+                        <button id="refreshEnrollmentsBtn" class="ghost-button">Refresh</button>
+                    </div>
+
+                    <div class="enrollment-layout">
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div>
+                                    <p class="eyebrow">Enrollment</p>
+                                    <h4>New enrollment</h4>
+                                </div>
+                            </div>
+
+                            <form id="enrollmentForm" class="stacked-form">
+                                <label>
+                                    Student ID
+                                    <input type="number" name="student_id" placeholder="1" required />
+                                </label>
+                                <label>
+                                    Course ID
+                                    <input type="number" name="course_id" placeholder="1" required />
+                                </label>
+                                <label class="checkbox-field large-check">
+                                    <input type="checkbox" name="is_completed" />
+                                    Mark as completed
+                                </label>
+                                <button type="submit" class="primary-button full-width">Enroll student</button>
+                            </form>
+                        </div>
+
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div>
+                                    <p class="eyebrow">Latest</p>
+                                    <h4>Enrollment list</h4>
+                                </div>
+                            </div>
+
+                            <div id="enrollmentsList" class="list-stack">
+                                <div class="empty-list">No enrollment records yet.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="view-panel" data-view-panel="account">
+                    <div class="panel-header split-header">
+                        <div>
+                            <p class="eyebrow">Settings</p>
+                            <h3>Account</h3>
+                        </div>
+                    </div>
+
+                    <div class="account-grid">
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div>
+                                    <p class="eyebrow">Profile</p>
+                                    <h4>Signed in user</h4>
+                                </div>
+                            </div>
+                            <div class="profile-card large">
+                                <div class="profile-avatar" id="accountUserInitials">JD</div>
+                                <div>
+                                    <h4 id="accountUserName">Guest User</h4>
+                                    <p id="accountUserEmail">guest@example.com</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div>
+                                    <p class="eyebrow">Session</p>
+                                    <h4>Access summary</h4>
+                                </div>
+                            </div>
+                            <ul class="account-summary">
+                                <li><span>Status</span><strong id="accountStatus">Guest</strong></li>
+                                <li><span>Access token</span><strong id="accountTokenStatus">Not active</strong></li>
+                                <li><span>Role</span><strong>Admin</strong></li>
+                            </ul>
+                        </div>
+
+                        <div class="panel full-span-panel">
+                            <div class="panel-header">
+                                <div>
+                                    <p class="eyebrow">Users</p>
+                                    <h4>Create user</h4>
+                                </div>
+                            </div>
+
+                            <form id="createUserForm" class="stacked-form">
+                                <div class="inline-fields two-up">
+                                    <label>
+                                        Username
+                                        <input type="text" name="username" placeholder="johndoe" required />
+                                    </label>
+                                    <label>
+                                        Email
+                                        <input type="email" name="email" placeholder="john@example.com" required />
+                                    </label>
+                                </div>
+
+                                <div class="inline-fields two-up">
+                                    <label>
+                                        Password
+                                        <input type="password" name="password" placeholder="Create password" required />
+                                    </label>
+                                    <label>
+                                        User type
+                                        <select name="user_type">
+                                            <option value="SYSTEM">SYSTEM</option>
+                                            <option value="STUDENT">STUDENT</option>
+                                            <option value="TEACHER">TEACHER</option>
+                                        </select>
+                                    </label>
+                                </div>
+
+                                <label class="checkbox-field">
+                                    <input type="checkbox" name="is_active" checked />
+                                    Active user
+                                </label>
+
+                                <button type="submit" class="primary-button full-width">Create user</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div id="authModal" class="auth-modal hidden" aria-modal="true" role="dialog">
+        <div class="auth-modal-card">
+            <button id="closeAuthModalBtn" class="close-modal" aria-label="Close">×</button>
+            <div class="auth-header">
+                <p class="eyebrow">Secure access</p>
+                <h3>Welcome back</h3>
+            </div>
+
+            <div class="tab-switcher">
+                <button class="tab active" data-auth-tab="login">Login</button>
+                <button class="tab" data-auth-tab="register">Register</button>
+            </div>
+
+            <form id="loginForm" class="auth-form">
+                <label>
+                    Username
+                    <input type="text" name="username" placeholder="Enter username" required />
+                </label>
+                <label>
+                    Password
+                    <input type="password" name="password" placeholder="Enter password" required />
+                </label>
+                <button type="submit" class="primary-button full-width">Login</button>
+            </form>
+
+            <form id="registerForm" class="auth-form hidden">
+                <label>
+                    Full name
+                    <input type="text" name="full_name" placeholder="John Doe" required />
+                </label>
+                <label>
+                    Username
+                    <input type="text" name="username" placeholder="johndoe" required />
+                </label>
+                <label>
+                    Email
+                    <input type="email" name="email" placeholder="john@example.com" required />
+                </label>
+                <label>
+                    Password
+                    <input type="password" name="password" placeholder="Create a password" required />
+                </label>
+                <button type="submit" class="primary-button full-width">Create account</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="courseDetailModal" class="auth-modal hidden" aria-modal="true" role="dialog">
+        <div class="auth-modal-card detail-modal-card">
+            <button id="closeCourseDetailModalBtn" class="close-modal" aria-label="Close">×</button>
+            <div class="auth-header">
+                <p class="eyebrow">Course details</p>
+                <h3 id="courseDetailTitle">Course title</h3>
+            </div>
+            <div id="courseDetailBody" class="course-detail-body"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

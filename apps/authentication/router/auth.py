@@ -52,6 +52,7 @@ def register(user: UserRegister, db: Session = Depends(get_db)):
         db_user = CustomUser(
             username=user.username,
             email=user.email,
+            full_name=user.full_name,
             hashed_password=hash_password(user.password),
             is_active=True,
             is_superuser=False,
@@ -138,7 +139,7 @@ def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
                 "id": user.id,
                 "username": user.username,
                 "email": user.email,
-                # "user_type": user.user_type.value,
+                "user_type": user.user_type.value,
             },
             "roles": [role.name for role in user.user_roles],
             "permissions": [perm.code_name for perm in user.user_permissions],

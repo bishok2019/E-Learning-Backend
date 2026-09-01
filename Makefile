@@ -126,12 +126,14 @@ nginx-test:
 nginx-reload:
 	$(DC) exec nginx nginx -s reload
 # ───────────────── Management command-------------------------
-.PHONY: permission flush
+.PHONY: permission flush seed_db
 permission:
 	$(DC) exec web python manage.py seed_permissions
 
 flush:
 	$(DC) exec web python manage.py flush_data
+seed_db:
+	$(DC) exec web python manage.py seed_db
 
 
 .PHONY: superuser

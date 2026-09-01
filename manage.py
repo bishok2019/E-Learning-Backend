@@ -2,7 +2,7 @@
 import typer
 
 from apps import model_registry
-from base.management import create_superuser, flush_data, seed_permissions
+from base.management import create_superuser, flush_data, seed_db, seed_permissions
 
 app = typer.Typer(help="Management commands")
 
@@ -16,6 +16,7 @@ def callback():
 app.command(name="seed_permissions")(seed_permissions)
 app.command(name="flush_data")(flush_data)
 app.command(name="createsuperuser")(create_superuser)
+app.command(name="seed_db")(seed_db)
 
 if __name__ == "__main__":
     app()
