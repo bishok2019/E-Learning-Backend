@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from apps.authentication.models import CustomUser
+from apps.authentication.utils import get_current_active_user
 from apps.course.models import Course
+from apps.course.schema.course import CourseListSchema
 from apps.database import get_db
 from base.pagination import get_pagination_params
 from base.route import StandardResponse
@@ -21,7 +23,9 @@ def create_enrollment(
     enrollment: EnrollmentCreateSchema, db: Session = Depends(get_db)
 ):
     """Enroll a student in a course."""
-    student = db.query(CustomUser).filter(CustomUser.id == enrollment.student_id).first()
+    student = (
+        db.query(CustomUser).filter(CustomUser.id == enrollment.student_id).first()
+    )
     course = db.query(Course).filter(Course.id == enrollment.course_id).first()
 
     if not student:
@@ -88,4 +92,62 @@ def get_enrollement(
         data=result.data,
         message="Enrollment fetched successfully.",
         meta=result.meta,
+    )
+
+
+# @router.get("/enrolled/list", response_model=StandardResponse)
+# def get_enrolled_courses(
+#     db: Session = Depends(get_db),
+#     current_user: CustomUser = Depends(get_current_active_user),
+# ):
+#     """Get all courses the current student is enrolled in."""
+
+#     enrollments = (
+#         db.query(Enrollment).filter(Enrollment.student_id == current_user.id).all()
+#     )
+
+#     courses = [enrollment.course for enrollment in enrollments]
+#     print(f"Enrolled courses for student {current_user.id}: {courses}")
+#     result = [CourseListSchema.model_validate(course) for course in courses]
+
+#     print(f"Serialized enrolled courses for student {current_user.id}: {result}")
+
+#     return StandardResponse.success_response(
+#         data=result,
+#         message="Enrolled courses fetched successfully.",
+#         status_code=status.HTTP_200_OK,
+#     )
+
+
+@router.get("/enrolled/list", response_model=StandardResponse)
+def get_enrolled_courses(
+    db: Session = Depends(get_db),
+    current_user: CustomUser = Depends(get_current_active_user),
+):
+    """Get all courses the current student is enrolled in."""
+    # Use the generic list handler to fetch enrollments filtered by the
+    # current user's id and eager-load the related course objects. This
+    # provides pagination, search and filtering consistency with other
+    # list endpoints.
+    pagination = get_pagination_params()
+
+    enrollments_response = generic_list_handler(
+        model=Enrollment,
+        schema=EnrollmentRetriveSchema,
+        filter_fields=["student_id"],
+        pagination=pagination,
+        student_id=current_user.id,
+        db=db,
+        eager_loads=[Enrollment.course],
+    )
+
+    # Extract the course payloads from the enrollment serialisation
+    enrollments_data = getattr(enrollments_response, "data", []) or []
+    courses = [item.get("course") for item in enrollments_data]
+
+    return StandardResponse.success_response(
+        data=courses,
+        message="Enrolled courses fetched successfully.",
+        status_code=status.HTTP_200_OK,
+        meta=getattr(enrollments_response, "meta", None),
     )

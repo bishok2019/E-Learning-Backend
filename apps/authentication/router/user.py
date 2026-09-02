@@ -8,7 +8,7 @@ from base.utils.query_utils import generic_list_handler
 
 from ..models import CustomUser
 from ..schema import UserCreate, UserList, UserRetrieve, UserUpdate
-from ..utils import hash_password
+from ..utils import check_permissions, hash_password
 
 router = APIRouter()
 
@@ -61,6 +61,7 @@ def list_users(
     db: Session = Depends(get_db),
     pagination=Depends(get_pagination_params),
     # __: User = Depends(get_current_user),
+    _: CustomUser = Depends(check_permissions(["can_view_user"])),
 ):
     """List all Customer records with pagination, search, and filters"""
     return generic_list_handler(

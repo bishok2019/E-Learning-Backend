@@ -112,6 +112,34 @@ function setAuthState() {
         elements.accountUserEmail.textContent = email;
         elements.accountUserInitials.textContent = initials;
     }
+
+    // Apply UI restrictions based on user type (frontend-only, no backend changes)
+    try {
+        applyUiRestrictions();
+    } catch (err) {
+        // ignore if function not yet defined during early init
+    }
+}
+
+// Hide or disable UI elements for certain user types (STUDENT) without changing backend
+function applyUiRestrictions() {
+    const isStudent = Boolean(state.user && state.user.user_type === 'STUDENT');
+
+    // Prevent STUDENT users from accessing create user/course forms and lesson controls
+    if (elements.createCourseForm) {
+        elements.createCourseForm.classList.toggle('hidden', isStudent);
+    }
+    if (elements.createUserForm) {
+        elements.createUserForm.classList.toggle('hidden', isStudent);
+    }
+    if (elements.addLessonBtn) {
+        elements.addLessonBtn.classList.toggle('hidden', isStudent);
+    }
+
+    // If STUDENT, also collapse or hide admin-only workspace panels where applicable
+    if (elements.adminWorkspace) {
+        // keep admin workspace visible for logged in users, but hide admin creation forms handled above
+    }
 }
 
 async function apiRequest(path, options = {}) {
@@ -264,19 +292,24 @@ function renderEnrollments() {
         return;
     }
 
+    const hideStudentInfo = Boolean(state.user && state.user.user_type === 'STUDENT');
+
     elements.enrollmentsList.innerHTML = state.enrollments
-        .map(
-            (item) => `
-        <div class="enrollment-item">
-          <strong>${item.course?.title || 'Course'}</strong>
-          <div>Student: ${item.student?.username || item.student_id || 'Unknown'}</div>
-          <div class="enrollment-meta">
-            <span>Course ID: ${item.course_id || item.course?.id || '—'}</span>
-            <span>Student ID: ${item.student_id || item.student?.id || '—'}</span>
-            <span>${item.is_completed ? 'Completed' : 'In progress'}</span>
-          </div>
-        </div>`
-        )
+        .map((item) => {
+            const studentName = hideStudentInfo ? 'Hidden' : (item.student?.username || item.student_id || 'Unknown');
+            const studentIdDisplay = hideStudentInfo ? '—' : (item.student_id || item.student?.id || '—');
+
+            return `
+                <div class="enrollment-item">
+                    <strong>${item.course?.title || 'Course'}</strong>
+                    <div>Student: ${studentName}</div>
+                    <div class="enrollment-meta">
+                        <span>Course ID: ${item.course_id || item.course?.id || '—'}</span>
+                        <span>Student ID: ${studentIdDisplay}</span>
+                        <span>${item.is_completed ? 'Completed' : 'In progress'}</span>
+                    </div>
+                </div>`;
+        })
         .join('');
 
     elements.enrollmentCount.textContent = state.enrollments.length;
@@ -427,6 +460,11 @@ async function handleRegister(event) {
 
 async function handleCreateCourse(event) {
     event.preventDefault();
+    // Frontend guard: students are not allowed to create courses
+    if (state.user && state.user.user_type === 'STUDENT') {
+        showToast('Permission denied: students cannot create courses.', 'error');
+        return;
+    }
     const formData = new FormData(event.currentTarget);
     const payload = Object.fromEntries(formData.entries());
 
@@ -467,6 +505,11 @@ async function handleCreateCourse(event) {
 
 async function handleCreateUser(event) {
     event.preventDefault();
+    // Frontend guard: students are not allowed to create users
+    if (state.user && state.user.user_type === 'STUDENT') {
+        showToast('Permission denied: students cannot create users.', 'error');
+        return;
+    }
     const formData = new FormData(event.currentTarget);
     const payload = Object.fromEntries(formData.entries());
 
