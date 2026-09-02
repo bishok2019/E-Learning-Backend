@@ -61,20 +61,23 @@ def list_users(
     db: Session = Depends(get_db),
     pagination=Depends(get_pagination_params),
     # __: User = Depends(get_current_user),
-    _: CustomUser = Depends(check_permissions(["can_view_user"])),
+    # _: CustomUser = Depends(check_permissions(["can_view_user"])),
 ):
     """List all Customer records with pagination, search, and filters"""
+
+    query = db.query(CustomUser)
+
     return generic_list_handler(
-        model=CustomUser,
+        query=query,
         schema=UserList,
-        search_fields=["username", "email"],
-        filter_fields=["user_id", "is_active", "user_type"],
-        db=db,
         pagination=pagination,
         search=search,
-        user_id=user_id,
-        is_active=is_active,
-        user_type=user_type,
+        search_fields=[CustomUser.username, CustomUser.email],
+        filters={
+            CustomUser.id: user_id,
+            CustomUser.is_active: is_active,
+            CustomUser.user_type: user_type,
+        },
     )
 
 

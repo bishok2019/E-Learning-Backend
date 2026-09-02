@@ -15,34 +15,25 @@ router = APIRouter()
 @router.get("/list")
 def list_permission(
     search: str = "",
-    # user_id: int = None,
-    is_active: bool = None,
-    user_type: str = None,
+    category_id: int = None,
     db: Session = Depends(get_db),
     pagination=Depends(get_pagination_params),
     # __: User = Depends(get_current_user),
 ):
-    """List all Customer records with pagination, search, and filters"""
+    """List all Permission records with pagination, search, and filters"""
+
+    query = db.query(CustomPermission)
+
     return generic_list_handler(
-        model=CustomPermission,
+        query=query,
         schema=PermissionBaseSchema,
-        search_fields=[
-            "username",
-            "email",
-        ],
-        filter_fields=[
-            "user_id",
-            "is_active",
-            "user_type",
-        ],
-        db=db,
         pagination=pagination,
         search=search,
-        # user_id=user_id,
-        is_active=is_active,
-        user_type=user_type,
-        # eager_loads=[Customer.user],
-        # related_mappings={
-        #     "email": "user.email",
-        # },
+        search_fields=[
+            CustomPermission.name,
+            CustomPermission.code_name,
+        ],
+        filters={
+            CustomPermission.category_id: category_id,
+        },
     )

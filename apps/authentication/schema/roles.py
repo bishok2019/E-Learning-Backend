@@ -12,7 +12,9 @@ class PermissionBaseSchema(BaseModel):
 class RoleBaseSchema(BaseModel):
     name: str
     description: str
-    is_actiive: bool
+    is_active: bool
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class RoleRetrieveSchema(RoleBaseSchema):

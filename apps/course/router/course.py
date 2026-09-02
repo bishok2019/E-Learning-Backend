@@ -21,21 +21,20 @@ def get_courses(
     db: Session = Depends(get_db),
     pagination=Depends(get_pagination_params),
 ):
-    """Get all courses with pagination"""
-    result = generic_list_handler(
-        search_fields=["title"],
-        filter_fields=["instructor_id", "status"],
-        model=Course,
+
+    query = db.query(Course)
+
+    return generic_list_handler(
+        query=query,
         schema=schemas.CourseListSchema,
         pagination=pagination,
-        status=status,
-        instructor_id=instructor_id,
-        db=db,
-    )
-    return StandardResponse.success_response(
-        data=result.data,
+        search=search,
+        search_fields=[Course.title],
+        filters={
+            Course.instructor_id: instructor_id,
+            Course.status: status,
+        },
         message="Courses fetched successfully.",
-        meta=result.meta,
     )
 
 

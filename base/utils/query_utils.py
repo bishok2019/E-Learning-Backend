@@ -12,46 +12,6 @@ from base.route import StandardResponse
 # ---------------------------------------------------------------------------
 
 
-def apply_filters(query: Query, model: Type, filters: Dict[str, Any]) -> Query:
-    """Apply exact-match filters to a query, skipping None values."""
-    for attr, value in filters.items():
-        if value is not None and hasattr(model, attr):
-            query = query.filter(getattr(model, attr) == value)
-    return query
-
-
-def apply_search(
-    query: Query,
-    model: Type,
-    search: Optional[str],
-    fields: List[str],
-) -> Query:
-    """
-    Apply case-insensitive ILIKE search across the given model fields.
-
-    Only top-level model fields are supported here. For cross-relationship
-    searches, filter at the application layer or extend this function with
-    explicit joins.
-    """
-    if not search or not fields:
-        return query
-
-    clauses = []
-    for field in fields:
-        if not hasattr(model, field):
-            continue
-
-        column = getattr(model, field)
-        columns = getattr(getattr(column, "property", None), "columns", [])
-        if not columns or not isinstance(columns[0].type, String):
-            continue
-
-        clauses.append(column.ilike(f"%{search}%"))
-    if clauses:
-        query = query.filter(or_(*clauses))
-    return query
-
-
 def apply_eager_loads(query: Query, relationships: List) -> Query:
     """Wrap each relationship attribute in selectinload and apply to query."""
     if relationships:
@@ -87,6 +47,41 @@ def enrich_with_related(
             item[key] = value
 
 
+def apply_filters(query: Query, filters: Dict[Any, Any]) -> Query:
+    """
+    Apply exact-match filters to a query, skipping None values.
+
+    filters: {Model.column: value}, e.g. {Course.category_id: category_id}
+    Works with columns from any joined entity, not just the base model.
+    """
+    for column, value in filters.items():
+        if value is not None:
+            query = query.filter(column == value)
+    return query
+
+
+def apply_search(query: Query, columns: List, search: Optional[str]) -> Query:
+    """
+    Apply case-insensitive ILIKE search across the given columns.
+
+    columns: [Course.name, Course.description] — actual column refs,
+    so this works across joined tables too.
+    """
+    if not search or not columns:
+        return query
+
+    clauses = []
+    for column in columns:
+        col = getattr(getattr(column, "property", None), "columns", [None])[0]
+        if col is None or not isinstance(col.type, String):
+            continue
+        clauses.append(column.ilike(f"%{search}%"))
+
+    if clauses:
+        query = query.filter(or_(*clauses))
+    return query
+
+
 # ---------------------------------------------------------------------------
 # Generic handler
 # ---------------------------------------------------------------------------
@@ -94,39 +89,23 @@ def enrich_with_related(
 
 def generic_list_handler(
     *,
-    model: Type,
+    query: Query,
     schema: Type,
-    search_fields: Optional[List[str]] = None,
-    filter_fields: Optional[List[str]] = None,
-    db: Session,
     pagination,
-    search: Optional[str] = "",
+    search: Optional[str] = None,
+    search_fields: Optional[List] = None,
+    filters: Optional[Dict[Any, Any]] = None,
     eager_loads: Optional[List] = None,
     related_mappings: Optional[Dict[str, str]] = None,
-    **filters: Any,
+    message: str = "Fetched successfully",
 ) -> StandardResponse:
     """
     Generic paginated list handler with search, filtering, and relationship
-    enrichment.
-
-    Args:
-        model:            SQLAlchemy model class.
-        schema:           Pydantic schema used for serialisation.
-        search_fields:    Model field names to run ILIKE search against.
-        filter_fields:    Model field names to apply exact-match filters on.
-        db:               Active SQLAlchemy session.
-        pagination:       Pagination params object with ``page`` / ``page_size``.
-        search:           Optional search term.
-        eager_loads:      Relationship attributes to selectinload.
-        related_mappings: Dotted-path mappings added to each serialised item,
-                          e.g. ``{"category_name": "category.name"}``.
-        **filters:        Keyword arguments matched against ``filter_fields``.
+    enrichment — operates on a caller-supplied query, so joins, filters and
+    search columns can come from any entity in that query.
     """
-    query = db.query(model)
-    query = apply_search(query, model, search, search_fields)
-    query = apply_filters(
-        query, model, {field: filters.get(field) for field in (filter_fields or [])}
-    )
+    query = apply_filters(query, filters or {})
+    query = apply_search(query, search_fields or [], search)
     query = apply_eager_loads(query, eager_loads or [])
 
     result = paginate(query=query, pagination=pagination, schema=schema)
@@ -138,6 +117,6 @@ def generic_list_handler(
 
     return StandardResponse.success_response(
         data=result.data,
-        message=f"{model.__name__} fetched successfully",
+        message=message,
         meta=result.meta,
     )

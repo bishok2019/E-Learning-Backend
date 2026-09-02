@@ -15,34 +15,25 @@ router = APIRouter()
 @router.get("/list")
 def list_roles(
     search: str = "",
-    # user_id: int = None,
     is_active: bool = None,
-    user_type: str = None,
     db: Session = Depends(get_db),
     pagination=Depends(get_pagination_params),
     # __: User = Depends(get_current_user),
 ):
-    """List all Customer records with pagination, search, and filters"""
+    """List all Role records with pagination, search, and filters"""
+
+    query = db.query(CustomRole)
+
     return generic_list_handler(
-        model=CustomRole,
+        query=query,
         schema=RoleBaseSchema,
-        search_fields=[
-            "username",
-            "email",
-        ],
-        filter_fields=[
-            "user_id",
-            "is_active",
-            "user_type",
-        ],
-        db=db,
         pagination=pagination,
         search=search,
-        # user_id=user_id,
-        is_active=is_active,
-        user_type=user_type,
-        # eager_loads=[Customer.user],
-        # related_mappings={
-        #     "email": "user.email",
-        # },
+        search_fields=[
+            CustomRole.name,
+            CustomRole.description,
+        ],
+        filters={
+            CustomRole.is_active: is_active,
+        },
     )

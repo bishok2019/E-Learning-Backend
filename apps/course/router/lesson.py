@@ -14,21 +14,20 @@ router = APIRouter()
 
 @router.get("/list", response_model=StandardResponse)
 def get_lessons(
+    search: str = "",
     db: Session = Depends(get_db),
     pagination=Depends(get_pagination_params),
 ):
     """Get all Lessons with pagination"""
-    result = generic_list_handler(
-        search_fields=["title"],
-        model=Lesson,
+
+    query = db.query(Lesson)
+
+    return generic_list_handler(
+        query=query,
         schema=schemas.LessonListSchema,
         pagination=pagination,
-        db=db,
-    )
-    return StandardResponse.success_response(
-        data=result.data,
-        message="Lessons fetched successfully.",
-        meta=result.meta,
+        search=search,
+        search_fields=[Lesson.title],
     )
 
 
