@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 
 from apps.authentication.models import CustomUser
 from apps.authentication.utils import get_current_active_user
-from apps.course.models import Course
-from apps.course.schema.course import CourseListSchema
+from apps.course.models import Course, Lesson
+from apps.course.schema import CourseListSchema, LessonListSchema
 from apps.database import get_db
 from base.pagination import get_pagination_params
 from base.route import StandardResponse
@@ -22,7 +22,9 @@ router = APIRouter()
     "/create", response_model=StandardResponse, status_code=status.HTTP_201_CREATED
 )
 def create_enrollment(
-    enrollment: EnrollmentCreateSchema, db: Session = Depends(get_db)
+    enrollment: EnrollmentCreateSchema,
+    db: Session = Depends(get_db),
+    _: CustomUser = Depends(get_current_active_user),
 ):
     """Enroll a student in a course."""
     student = (
@@ -71,7 +73,7 @@ def create_enrollment(
     )
 
 
-@router.get("/list", response_model=StandardResponse)
+@router.get("/list")
 def get_enrollement(
     student_id: int | None = None,
     course_id: int | None = None,
@@ -96,7 +98,7 @@ def get_enrollement(
     )
 
 
-@router.get("/enrolled/list", response_model=StandardResponse)
+@router.get("/enrolled/course/list", response_model=StandardResponse)
 def get_enrolled_courses(
     db: Session = Depends(get_db),
     current_user: CustomUser = Depends(get_current_active_user),
@@ -119,4 +121,43 @@ def get_enrolled_courses(
         search=search,
         search_fields=[Course.title, Course.description],
         message="Enrolled courses fetched successfully.",
+    )
+
+
+@router.get("/enrolled/lesson/{course_id}")
+def get_enrolled_lesson(
+    course_id: int,
+    order: int | None = None,
+    db: Session = Depends(get_db),
+    current_user: CustomUser = Depends(get_current_active_user),
+    pagination=Depends(get_pagination_params),
+    search: Optional[str] = None,
+):
+    """Get all lessons for a specific course the current student is enrolled in."""
+
+    enrollment = (
+        db.query(Enrollment)
+        .filter(
+            Enrollment.course_id == course_id,
+            Enrollment.student_id == current_user.id,
+        )
+        .first()
+    )
+    if not enrollment:
+        return StandardResponse.error_response(
+            message="You are not enrolled in this course.",
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
+    query = db.query(Lesson).filter(Lesson.course_id == course_id)
+    return generic_list_handler(
+        query=query,
+        schema=LessonListSchema,
+        pagination=pagination,
+        search=search,
+        search_fields=[Lesson.title, Lesson.order],
+        message="Enrolled courses fetched successfully.",
+        filters={
+            Lesson.course_id: course_id,
+            Lesson.order: order,
+        },
     )

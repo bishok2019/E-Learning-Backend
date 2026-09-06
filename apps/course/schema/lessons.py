@@ -11,6 +11,8 @@ class LessonBaseSchema(BaseModel):
 
 
 class LessonListSchema(LessonBaseSchema):
+    course_id: Optional[int] = None
+
     pass
 
 

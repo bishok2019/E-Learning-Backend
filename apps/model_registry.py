@@ -6,5 +6,5 @@ from apps.authentication.models import (
     RefreshToken,
     UserType,
 )
-from apps.course.models import Course, CourseStatus, Lesson
+from apps.course.models import Course, CourseStatus, Currency, Lesson
 from apps.enrollment.models import Enrollment, Progress

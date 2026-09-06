@@ -9,6 +9,7 @@ Usage:
 
 import random
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 from typing import List
 
 from faker import Faker
@@ -222,22 +223,38 @@ def seed_courses(session, teachers: List[CustomUser]) -> List[Course]:
         "Agile Development",
         "Leadership for Developers",
     ]
-
     courses = []
+
     for i, title in enumerate(course_titles[:NUM_ITEMS]):
         try:
             instructor = random.choice(teachers)
+
+            requires_payment = random.choice([True, False])
+
             course = Course(
                 title=title,
                 description=fake.paragraph(nb_sentences=3),
                 status=random.choice(
-                    [CourseStatus.DRAFT, CourseStatus.PUBLISHED, CourseStatus.ARCHIVED]
+                    [
+                        CourseStatus.DRAFT,
+                        CourseStatus.PUBLISHED,
+                        CourseStatus.ARCHIVED,
+                    ]
                 ),
                 instructor_id=instructor.id,
                 is_active=random.choice([True, True, True, False]),  # 75% active
+                requires_payment=requires_payment,
+                price=(
+                    Decimal(str(random.uniform(10.0, 200.0))).quantize(Decimal("0.01"))
+                    if requires_payment
+                    else None
+                ),
+                currency_id=1 if requires_payment else None,
             )
+
             session.add(course)
             courses.append(course)
+
         except IntegrityError:
             session.rollback()
 

@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
@@ -17,6 +18,9 @@ class CourseBaseSchema(BaseModel):
     description: Optional[str] = None
     status: Optional[str] = None
     is_active: Optional[bool] = True
+    requires_payment: Optional[bool] = None
+    price: Optional[Decimal] = None
+    currency_id: Optional[int] = None
     # instructor_id: Optional[int] = None
     instructor: Optional[InstructorSchema] = None
 

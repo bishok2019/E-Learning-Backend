@@ -1,3 +1,5 @@
+from enum import Enum as PyEnum
+
 from sqlalchemy import (
     Boolean,
     Column,
@@ -6,9 +8,16 @@ from sqlalchemy import (
     Integer,
     UniqueConstraint,
 )
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import relationship
 
 from base.models import BaseModel
+
+
+class EnrollmentStatus(str, PyEnum):
+    PENDING = "PENDING"
+    ACTIVE = "ACTIVE"
+    CANCELLED = "CANCELLED"
 
 
 class Enrollment(BaseModel):
@@ -30,6 +39,11 @@ class Enrollment(BaseModel):
     course = relationship("Course", back_populates="enrollments")
     completed_lessons = relationship(
         "Progress", back_populates="enrollment", cascade="all, delete-orphan"
+    )
+    payment_status = Column(
+        SQLEnum(EnrollmentStatus),
+        default=EnrollmentStatus.PENDING,
+        nullable=False,
     )
 
     def __str__(self):

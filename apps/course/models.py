@@ -5,6 +5,7 @@ from sqlalchemy import (
     Column,
     ForeignKey,
     Integer,
+    Numeric,
     String,
     Text,
     UniqueConstraint,
@@ -22,6 +23,16 @@ class CourseStatus(PyEnum.Enum):
     UNDER_REVIEW = "UNDER_REVIEW"
 
 
+class Currency(BaseModel):
+    __tablename__ = "currencies"
+
+    code = Column(String(3), unique=True, nullable=False)
+    name = Column(String(100), nullable=False)
+    symbol = Column(String(10), nullable=True)
+    is_active = Column(Boolean, default=True, nullable=False)
+    decimal_places = Column(Integer, default=2, nullable=False)
+
+
 class Course(BaseModel):
     __tablename__ = "courses"
     title = Column(String(255), nullable=False)
@@ -30,14 +41,27 @@ class Course(BaseModel):
     instructor_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
 
-    instructor = relationship("CustomUser", back_populates="courses")
+    requires_payment = Column(Boolean, default=False, nullable=False)
+    price = Column(Numeric(10, 2), nullable=True)
+    currency_id = Column(Integer, ForeignKey("currencies.id"), nullable=True)
+
+    currency = relationship(
+        "Currency",
+    )
+
+    instructor = relationship(
+        "CustomUser",
+        back_populates="courses",
+    )
     lessons = relationship(
         "Lesson",
         back_populates="course",
         cascade="all, delete-orphan",
     )
     enrollments = relationship(
-        "Enrollment", back_populates="course", cascade="all, delete-orphan"
+        "Enrollment",
+        back_populates="course",
+        cascade="all, delete-orphan",
     )
 
     @property

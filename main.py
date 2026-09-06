@@ -28,6 +28,9 @@ app = FastAPI(
         "name": "Bishok Paudel",
         "email": "bishokpaudel57@gmail.com",
     },
+    swagger_ui_parameters={
+        "persistAuthorization": True,
+    },
 )
 # app.add_middleware(APILoggingMiddleware)
 app.add_exception_handler(HTTPException, http_exception_handler)

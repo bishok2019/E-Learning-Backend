@@ -2,7 +2,13 @@
 import typer
 
 from apps import model_registry
-from base.management import create_superuser, flush_data, seed_db, seed_permissions
+from base.management import (
+    create_superuser,
+    flush_data,
+    seed_currencies,
+    seed_db,
+    seed_permissions,
+)
 
 app = typer.Typer(help="Management commands")
 
@@ -17,6 +23,7 @@ app.command(name="seed_permissions")(seed_permissions)
 app.command(name="flush_data")(flush_data)
 app.command(name="createsuperuser")(create_superuser)
 app.command(name="seed_db")(seed_db)
+app.command(name="seed_currency")(seed_currencies)
 
 if __name__ == "__main__":
     app()
